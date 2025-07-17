@@ -12,7 +12,7 @@ echo "Removing old Fineract deployment..."
 rm -rf /opt/tomcat/webapp/fineract /opt/tomcat/webapp/fineract.war
 
 echo "Moving new WAR file..."
-mv /home/ubuntu/fineract-provider.war /opt/tomcat/webapp/fineract.war
+mv /home/ubuntu/fineract-provider.war /opt/tomcat/webapp
 
 echo "Starting Tomcat..."
 systemctl start tomcat
