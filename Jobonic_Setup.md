@@ -134,12 +134,40 @@ exit
 
 ## 3. Configure Keycloak
 
-### Step 3.1: Access Keycloak Administration Console
+### Step 3.1: Start Keycloak with Docker Compose
 
-1. Open your browser and navigate to the Keycloak administration console (typically `http://localhost:8080` or the configured port)
-2. Log in with your Keycloak administrator credentials
+1. Navigate to the Keycloak directory:
 
-### Step 3.2: Create Admin User
+```bash
+cd authorize-server/keycloak
+```
+
+2. Open the `docker-compose.yml` file and ensure the `KC_DB_URL` environment variable is set to:
+
+```yaml
+KC_DB_URL: jdbc:oracle:thin:@//host.docker.internal:1521/ORCLPDB1
+```
+
+3. Start Keycloak using Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+4. Wait for Keycloak to start (this may take a few minutes). You can check the logs with:
+
+```bash
+docker compose logs -f
+```
+
+**Note:** Ensure the Oracle container is running before starting Keycloak, as Keycloak needs to connect to the database.
+
+### Step 3.2: Access Keycloak Administration Console
+
+1. Open your browser and navigate to the Keycloak administration console (typically `http://localhost:9000` or the configured port)
+2. Log in with your Keycloak administrator credentials (default: username `admin`, password `admin`)
+
+### Step 3.3: Create Admin User
 
 1. Navigate to **Users** in the left sidebar
 2. Click **Add user** button
@@ -149,14 +177,14 @@ exit
    - **Email verified:** `true` (toggle to enabled)
 4. Click **Save**
 
-### Step 3.3: Set User Password
+### Step 3.4: Set User Password
 
 1. Navigate to the **Credentials** tab (or **Password** tab)
 2. Set the password to: `12345`
 3. Toggle **Temporary** to `OFF` (so the password is permanent)
 4. Click **Set Password** and confirm
 
-### Step 3.4: Assign Roles to Admin User
+### Step 3.5: Assign Roles to Admin User
 
 1. Navigate to the **Role mapping** tab
 2. Click the **Assign role** button
