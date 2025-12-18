@@ -19,7 +19,7 @@ This guide will walk you through setting up the development environment for the 
 ## Prerequisites
 
 - Docker installed and running
-- Oracle Docker image file (`oracle12c.tar`)
+- Oracle Docker image file (`oracle12c.tar`) - [Download from OneDrive](https://1drv.ms/u/c/db2a753240da189e/IQCY2guAQw_5QKcrm8YH6I8iAf6bIvBRKUfBkMOTpZBUq_0?e=Py09DK)
 - Access to run Docker commands
 
 ---
@@ -34,9 +34,13 @@ Create a persistent volume for Oracle data:
 docker volume create oracle-data
 ```
 
-### Step 1.2: Load Oracle Image
+### Step 1.2: Download and Load Oracle Image
 
-Load the Oracle Docker image from the tar file:
+1. **Download the Oracle image file** (if not already downloaded):
+   - Download `oracle12c.tar` from [OneDrive](https://1drv.ms/u/c/db2a753240da189e/IQCY2guAQw_5QKcrm8YH6I8iAf6bIvBRKUfBkMOTpZBUq_0?e=Py09DK)
+   - Save the file to your local directory
+
+2. **Load the Oracle Docker image** from the tar file:
 
 ```bash
 docker load -i oracle12c.tar
