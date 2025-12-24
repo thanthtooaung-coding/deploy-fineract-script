@@ -8,8 +8,8 @@ erDiagram
         BIGINT contract_id FK
         VARCHAR initiator
         TEXT reason
-        BIGINT client_id
-        BIGINT freelancer_id
+        BIGINT client_id FK
+        BIGINT freelancer_id FK
         DOUBLE client_share_percent
         DOUBLE freelancer_share_percent
         DECIMAL client_refund_amount
