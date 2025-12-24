@@ -27,11 +27,7 @@ erDiagram
     }
 
     JBN_USER {
-        BIGINT client_id PK
-    }
-
-    JBN_USER {
-        BIGINT freelancer_id PK
+        BIGINT user_id PK
     }
 
     JBN_CL_MATCH_CONTRACT ||--o{ JBN_CL_MATCH_TERMINATION : "has"
