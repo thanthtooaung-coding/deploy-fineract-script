@@ -1,7 +1,3 @@
-# API Documentation by Process Steps
-
-This document maps all APIs that use tables starting with `JBN_` to the 5-step process flow.
-
 ## Database Tables Used (JBN_ prefix)
 
 ### Core Process Tables:
