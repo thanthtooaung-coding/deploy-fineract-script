@@ -34,7 +34,7 @@ erDiagram
         bigint region_id FK
         bigint city_id FK
         bigint missionary_group_id FK
-        bigint missionary_headquarters_id FK
+        bigint sub_missionary_group_id FK
     }
     
     LEVEL {
@@ -65,9 +65,11 @@ erDiagram
     MISSIONARY_GROUP {
         bigint id PK
         varchar name
-        varchar code
-        boolean underControl
-        int weight
+    }
+
+    SUB_MISSIONARY_GROUP {
+        bigint id PK
+        varchar name
     }
     
     VOLUNTEER }o--|| LEVEL : "has level"
@@ -75,7 +77,7 @@ erDiagram
     VOLUNTEER }o--|| REGION : "resides in"
     VOLUNTEER }o--|| CITY : "resides in"
     VOLUNTEER }o--|| MISSIONARY_GROUP : "belongs to"
-    VOLUNTEER }o--|| MISSIONARY_GROUP : "has headquarters"
+    VOLUNTEER }o--|| SUB_MISSIONARY_GROUP : "belongs to"
     CITY }o--|| REGION : "belongs to"
 ```
 
