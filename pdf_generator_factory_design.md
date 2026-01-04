@@ -15,20 +15,99 @@ The implementation follows the **Factory Pattern** design, allowing the system t
 
 ## Class Diagram
 
+### UML Diagram (Mermaid)
+
+```mermaid
+classDiagram
+    class PdfGeneratorFactory {
+        -Map~PdfGeneratorType, PdfGenerator~ generators
+        +PdfGeneratorFactory(List~PdfGenerator~ pdfGenerators)
+        +getGenerator~T~(PdfGeneratorType type) PdfGenerator~T~
+    }
+    
+    class PdfGenerator~T~ {
+        <<interface>>
+        +generate(T data) byte[]
+        +getType() PdfGeneratorType
+        +getFileName(T data) String
+    }
+    
+    class AbstractPdfGenerator~T~ {
+        <<abstract>>
+        #TITLE_FONT Font
+        #HEADING_FONT Font
+        #NORMAL_FONT Font
+        #SMALL_FONT Font
+        #addTitle(Document, String)
+        #addSection(Document, String, String, boolean)
+        #addSignature(Document, String)
+        #addSeparator(Document)
+    }
+    
+    class ProfileSummaryPdfGenerator {
+        -TITLE_FONT Font
+        -HEADING_FONT Font
+        -NORMAL_FONT Font
+        -SKILL_FONT Font
+        +generate(ProfileSummaryPdfData data) byte[]
+        +getType() PdfGeneratorType
+        +getFileName(ProfileSummaryPdfData data) String
+        -addProfileInfo(Document, JBNFlProfile)
+        -addSkillsSection(Document, Set~JBNFlProfileSkill~)
+    }
+    
+    class ServiceProposalPdfGenerator {
+        +generate(ServiceProposalPdfData data) byte[]
+        +getType() PdfGeneratorType
+        +getFileName(ServiceProposalPdfData data) String
+        -addServiceInfo(Document, JBNFlService)
+    }
+    
+    class ProfileSummaryPdfData {
+        -summary JBNFlProfileSummary
+        -profile JBNFlProfile
+    }
+    
+    class ServiceProposalPdfData {
+        -proposal JBNFlServiceProposal
+        -service JBNFlService
+    }
+    
+    class PdfGeneratorType {
+        <<enumeration>>
+        -code String
+        -description String
+        PROFILE_SUMMARY
+        SERVICE_PROPOSAL
+    }
+    
+    PdfGeneratorFactory ..> PdfGenerator~T~ : uses
+    PdfGenerator~T~ <|.. AbstractPdfGenerator~T~ : implements
+    AbstractPdfGenerator~T~ <|-- ProfileSummaryPdfGenerator : extends
+    AbstractPdfGenerator~T~ <|-- ServiceProposalPdfGenerator : extends
+    ProfileSummaryPdfGenerator ..> ProfileSummaryPdfData : uses
+    ServiceProposalPdfGenerator ..> ServiceProposalPdfData : uses
+    PdfGeneratorFactory ..> PdfGeneratorType : uses
+    ProfileSummaryPdfGenerator ..> PdfGeneratorType : returns
+    ServiceProposalPdfGenerator ..> PdfGeneratorType : returns
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
+
+
+### ASCII Diagram
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
 │                         PDF Generator Factory Pattern                    │
-└─────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                          PdfGeneratorFactory                            │
-│                          (Factory Class)                                │
+│                          PdfGeneratorFactory                             │
+│                          (Factory Class)                                 │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ - generators: Map<PdfGeneratorType, PdfGenerator<?>>                    │
+│ - generators: Map<PdfGeneratorType, PdfGenerator<?>>                     │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ + PdfGeneratorFactory(List<PdfGenerator<?>> pdfGenerators)                │
-│ + getGenerator<T>(PdfGeneratorType type): PdfGenerator<T>               │
-│ + hasGenerator(PdfGeneratorType type): boolean                          │
+│ + PdfGeneratorFactory(List<PdfGenerator<?>> pdfGenerators)               │
+│ + getGenerator<T>(PdfGeneratorType type): PdfGenerator<T>                │
 └──────────────────────────────────────────────────────────────────────────┘
                               │
                               │ uses
@@ -37,52 +116,26 @@ The implementation follows the **Factory Pattern** design, allowing the system t
 │                    <<interface>> PdfGenerator<T>                         │
 │                      (Abstract Product Interface)                        │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ + generate(T data): byte[]                                              │
+│ + generate(T data): byte[]                                               │
 │ + getType(): PdfGeneratorType                                            │
 │ + getFileName(T data): String                                            │
 └──────────────────────────────────────────────────────────────────────────┘
                               ▲
                               │ implements
                               │
-        ┌─────────────────────┴─────────────────────┐
-        │                                           │
-        │                                           │
-┌───────────────────────────┐         ┌──────────────────────────────┐
-│ ProfileSummaryPdfGenerator│         │ ServiceProposalPdfGenerator │
-│   (Concrete Product)     │         │    (Concrete Product)       │
-├───────────────────────────┤         ├──────────────────────────────┤
-│ - TITLE_FONT: Font        │         │ - TITLE_FONT: Font           │
-│ - HEADING_FONT: Font      │         │ - HEADING_FONT: Font         │
-│ - NORMAL_FONT: Font        │         │ - NORMAL_FONT: Font          │
-│ - SKILL_FONT: Font         │         │ - SERVICE_INFO_FONT: Font    │
-├───────────────────────────┤         ├──────────────────────────────┤
-│ + generate(data): byte[]  │         │ + generate(data): byte[]     │
-│ + getType(): Type         │         │ + getType(): Type            │
-│ + getFileName(data): Str  │         │ + getFileName(data): String │
-│                           │         │                              │
-│ + addTitle(...)           │         │ + addTitle(...)              │
-│ + addProfileInfo(...)     │         │ + addServiceInfo(...)        │
-│ + addSection(...)         │         │ + addSection(...)            │
-│ + addSkillsSection(...)   │         │ + addSignature(...)          │
-│ + addSignature(...)       │         │                              │
-└───────────────────────────┘         └──────────────────────────────┘
-        │                                           │
-        │ uses                                      │ uses
-        ▼                                           ▼
-┌───────────────────────────┐         ┌──────────────────────────────┐
-│ ProfileSummaryPdfData     │         │ ServiceProposalPdfData        │
-│   (Data Transfer Object)  │         │   (Data Transfer Object)      │
-├───────────────────────────┤         ├──────────────────────────────┤
-│ - summary: JBNFlProfile   │         │ - proposal: JBNFlService     │
-│   Summary                  │         │   Proposal                   │
-│ - profile: JBNFlProfile    │         │ - service: JBNFlService       │
-└───────────────────────────┘         └──────────────────────────────┘
-
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                        PdfGeneratorType (Enum)                           │
+│                    AbstractPdfGenerator<T>                               │
+│                    (Abstract Base Class)                                 │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ PROFILE_SUMMARY                                                          │
-│ SERVICE_PROPOSAL                                                         │
+│ # TITLE_FONT: Font (static)                                              │
+│ # HEADING_FONT: Font (static)                                            │
+│ # NORMAL_FONT: Font (static)                                             │
+│ # SMALL_FONT: Font (static)                                              │
+├──────────────────────────────────────────────────────────────────────────┤
+│ # addTitle(Document, String)                                             │
+│ # addSection(Document, String, String, boolean)                          │
+│ # addSignature(Document, String)                                         │
+│ # addSeparator(Document)                                                 │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -95,8 +148,7 @@ The factory class that manages all PDF generator instances. It uses Spring's dep
 **Location**: `com.laconic.jobonic.utils.pdf.PdfGeneratorFactory`
 
 **Key Methods**:
-- `getGenerator(PdfGeneratorType type)`: Returns the appropriate generator for the given type
-- `hasGenerator(PdfGeneratorType type)`: Checks if a generator exists for the given type
+- `getGenerator<T>(PdfGeneratorType type)`: Returns the appropriate generator for the given type (throws `IllegalArgumentException` if not found)
 
 ### 2. PdfGenerator<T> (Interface)
 
@@ -105,11 +157,31 @@ The abstract interface that all PDF generators must implement.
 **Location**: `com.laconic.jobonic.utils.pdf.PdfGenerator`
 
 **Key Methods**:
-- `generate(T data)`: Generates PDF bytes from the provided data
+- `generate(T data)`: Generates PDF bytes from the provided data (throws `Exception`)
 - `getType()`: Returns the generator type
 - `getFileName(T data)`: Returns the suggested file name for the PDF
 
-### 3. Concrete Generators
+### 3. AbstractPdfGenerator<T> (Abstract Base Class)
+
+An abstract base class that provides common PDF generation functionality and shared fonts. Concrete generators can extend this class to reuse common methods and avoid code duplication.
+
+**Location**: `com.laconic.jobonic.utils.pdf.impl.AbstractPdfGenerator`
+
+**Protected Static Fonts**:
+- `TITLE_FONT`: Bold, 20pt font for document titles
+- `HEADING_FONT`: Bold, 14pt font for section headings
+- `NORMAL_FONT`: Regular, 11pt font for body text
+- `SMALL_FONT`: Regular, 10pt font for smaller text
+
+**Protected Methods**:
+- `addTitle(Document, String)`: Adds a centered title to the document
+- `addSection(Document, String, String, boolean)`: Adds a section with optional heading and content
+- `addSignature(Document, String)`: Adds a right-aligned signature
+- `addSeparator(Document)`: Adds a horizontal separator line
+
+**Note**: Both concrete generators extend this class, but `ProfileSummaryPdfGenerator` also defines its own font constants (including `SKILL_FONT`) for specific styling needs.
+
+### 4. Concrete Generators
 
 #### ProfileSummaryPdfGenerator
 
@@ -149,15 +221,19 @@ Generates PDF documents for service proposals.
 - `JBNFlServiceProposal` entity
 - `JBNFlService` entity
 
-### 4. PdfGeneratorType (Enum)
+### 5. PdfGeneratorType (Enum)
 
-Enumeration of all available PDF generator types.
+Enumeration of all available PDF generator types. Each enum value contains a code and description.
 
 **Location**: `com.laconic.jobonic.utils.pdf.PdfGeneratorType`
 
+**Fields**:
+- `code` (String): Unique identifier for the generator type
+- `description` (String): Human-readable description
+
 **Values**:
-- `PROFILE_SUMMARY`: For profile summary PDFs
-- `SERVICE_PROPOSAL`: For service proposal PDFs
+- `PROFILE_SUMMARY("profile-summary", "Profile Summary PDF Generator")`: For profile summary PDFs
+- `SERVICE_PROPOSAL("service-proposal", "Service Proposal PDF Generator")`: For service proposal PDFs
 
 ## Usage Examples
 
@@ -272,6 +348,55 @@ public class NewTypePdfData {
 
 ### Step 3: Create Generator Implementation
 
+You can either extend `AbstractPdfGenerator` (recommended) or implement `PdfGenerator` directly:
+
+**Option A: Extend AbstractPdfGenerator (Recommended)**
+
+```java
+// Create NewTypePdfGenerator.java
+@Component
+public class NewTypePdfGenerator extends AbstractPdfGenerator<NewTypePdfData> {
+    
+    @Override
+    public byte[] generate(NewTypePdfData data) throws Exception {
+        if (data == null || data.getEntity() == null) {
+            throw new IllegalArgumentException("Data cannot be null");
+        }
+
+        Document document = new Document(PageSize.A4);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, baos);
+        
+        document.open();
+        try {
+            // Use inherited methods from AbstractPdfGenerator
+            addTitle(document, "Your Title");
+            addSection(document, "Section Heading", "Content here", true);
+            addSignature(document, "Signature");
+        } finally {
+            document.close();
+        }
+        
+        return baos.toByteArray();
+    }
+    
+    @Override
+    public PdfGeneratorType getType() {
+        return PdfGeneratorType.NEW_TYPE;
+    }
+    
+    @Override
+    public String getFileName(NewTypePdfData data) {
+        if (data == null || data.getEntity() == null || data.getEntity().getId() == null) {
+            return "new-type.pdf";
+        }
+        return "new-type-" + data.getEntity().getId() + ".pdf";
+    }
+}
+```
+
+**Option B: Implement PdfGenerator Directly**
+
 ```java
 // Create NewTypePdfGenerator.java
 @Component
@@ -345,6 +470,7 @@ src/main/java/com/laconic/jobonic/utils/pdf/
 ├── ProfileSummaryPdfData.java           # Data class
 ├── ServiceProposalPdfData.java           # Data class
 └── impl/
+    ├── AbstractPdfGenerator.java         # Abstract base class
     ├── ProfileSummaryPdfGenerator.java   # Concrete generator
     └── ServiceProposalPdfGenerator.java  # Concrete generator
 ```
@@ -360,9 +486,10 @@ src/main/java/com/laconic/jobonic/utils/pdf/
 
 ## Design Patterns Used
 
-- **Factory Pattern**: Centralized creation of PDF generators
+- **Factory Pattern**: Centralized creation of PDF generators through `PdfGeneratorFactory`
 - **Strategy Pattern**: Different PDF generation strategies for different types
-- **Template Method Pattern**: Common PDF structure with customizable content
+- **Template Method Pattern**: `AbstractPdfGenerator` provides template methods for common PDF structure with customizable content
+- **Inheritance**: Concrete generators extend `AbstractPdfGenerator` to reuse common functionality
 
 ## Future Enhancements
 
@@ -396,4 +523,3 @@ Common issues:
 ## License
 
 This implementation is part of the Jobonic application.
-
