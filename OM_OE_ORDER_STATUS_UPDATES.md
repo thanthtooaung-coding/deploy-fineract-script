@@ -201,3 +201,81 @@ The following procedures/functions update `OM_OE_ORDER.STATUS`:
 8. **MFG_IO_PKG.MODIFY_IO_RETURN** - Sets 'O'
 
 All of these updates will fire the `OM_OE_ORDER_STATUS_TRG` trigger.
+
+---
+
+## Java Code That Calls These Procedures
+
+The following Java classes call the stored procedures listed above, which in turn update `OM_OE_ORDER.STATUS`:
+
+### 1. ExpectedOrder.java
+**File:** `source/laconic/src/com/laconic/om/eo/component/ExpectedOrder.java`
+
+- **Method: saveOrderHeaderStatus()** (Line 1885-1910)
+  - Calls: `OM_OE_EO_PKG.SAVE_EO_STATUS`
+  - This method is called when saving order status changes (SEND-TO-PC, DELETE, RETURN, CONFIRM_RETURN, SEND-TO-SALES, CONFIRM, QUICK-CONFIRM)
+
+- **Method: close()** (Line 1963-2016)
+  - Calls: `OM_OE_EO_PKG.CLOSE_EO`
+  - Sets STATUS = 'X' when closing an order
+
+- **Method: reOpen()** (Line 2026-2050)
+  - Calls: `OM_OE_EO_PKG.RE_OPEN_EO`
+  - Sets STATUS = 'F' when reopening a closed order
+
+### 2. ExpectOrder.java (MOE Package)
+**File:** `source/laconic/src/com/laconic/om/moe/component/ExpectOrder.java`
+
+- **Method: modify()** (Line 610-650)
+  - Calls: `OM_OE_EO_PKG.MODIFY_ORDER`
+  - Can set STATUS = 'X' when mode = 'CANCEL-ORDER'
+
+- **Method: modifyExpectedOrder()** (Line 827-870)
+  - Calls: `OM_OE_EO_PKG.MODIFY_EXPECTED_ORDER`
+  - Note: This calls `ACTION_EXPECTED_ORDER` internally which can set STATUS = 'X' on CLOSE
+
+### 3. InternalOrder.java
+**File:** `source/laconic/src/com/laconic/mfg/io/component/InternalOrder.java`
+
+- **Method: saveStatus()** (Line 510-550)
+  - Calls: `MFG_IO_PKG.SAVE_STATUS`
+  - Sets STATUS to 'A', 'F', or 'D' based on function mode and approval requirements
+
+### 4. Order.java (MFG IO Package)
+**File:** `source/laconic/src/com/laconic/mfg/io/component/Order.java`
+
+- **Method: saveIOStatus()** (Line 543-580)
+  - Calls: `MFG_IO_PKG.SAVE_ORDER_STATUS`
+  - Sets STATUS to 'R' (REJECT) or 'F' (APPROVE) based on mode
+
+### 5. OrderDetail.java (MFG IO Package)
+**File:** `source/laconic/src/com/laconic/mfg/io/component/OrderDetail.java`
+
+- **Method: saveReturn()** (Line 317-350)
+  - Calls: `MFG_IO_PKG.MODIFY_IO_RETURN`
+  - Sets STATUS = 'O' when returning an order detail
+
+### 6. OrderStatus.java (COE Package)
+**File:** `source/laconic/src/com/laconic/om/coe/component/OrderStatus.java`
+
+- **Method: save()** (Line 356-424)
+  - Calls: `OM_OE_EO_PKG.CANCEL_ORDER`
+  - Note: This procedure internally calls `MODIFY_ORDER` with mode 'CANCEL-ORDER', which sets STATUS = 'X'
+
+### 7. OrderStatus.java (MOE Package)
+**File:** `source/laconic/src/com/laconic/om/moe/component/OrderStatus.java`
+
+- **Method: save()** (Line 403-473)
+  - Calls: `OM_OE_EO_PKG.CANCEL_ORDER`
+  - Note: This procedure internally calls `MODIFY_ORDER` with mode 'CANCEL-ORDER', which sets STATUS = 'X'
+
+## Complete Call Chain
+
+When Java code calls these methods, the following chain occurs:
+
+1. **Java Method** → 
+2. **Stored Procedure** → 
+3. **UPDATE OM_OE_ORDER SET STATUS = ...** → 
+4. **OM_OE_ORDER_STATUS_TRG Trigger Fires**
+
+All Java code paths that update `OM_OE_ORDER.STATUS` go through stored procedures, ensuring the trigger is always fired.
